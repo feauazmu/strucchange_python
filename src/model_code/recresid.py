@@ -14,7 +14,7 @@ def recresid(x, y):
     rval[0] = (y[q] - np.dot(xr.T, betar)) / np.sqrt(fr)
 
     if q < n:
-        for r in range(q + 1, n):
+        for r in np.arange(q + 1, n):
             X1 = X1 - (np.dot(np.dot(X1, np.outer(xr, xr)), X1)) / fr
             betar = (betar.T + np.dot(X1, xr) * rval[r - q - 1] * np.sqrt(fr)).T
             xr = x[r, :]
