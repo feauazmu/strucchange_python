@@ -21,3 +21,17 @@ def build(ctx):
             append=model,
             name=f"schelling_{model}",
         )
+
+    ctx(
+        features="run_py_script",
+        source="empirical_analysis.py",
+        deps=[
+            ctx.path_to(ctx, "OUT_DATA", "col_historic_homicide.csv"),
+            ctx.path_to(ctx, "IN_MODEL_CODE", "breakpoints.py"),
+        ],
+        target=[
+            ctx.path_to(ctx, "OUT_ANALYSIS", "colombia_hom_breaks.pickle"),
+        ],
+
+        name="empirical_analysis",
+    )
