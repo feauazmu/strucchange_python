@@ -2,4 +2,19 @@
 
 
 def build(ctx):
-    pass
+
+    ctx(
+        features="run_r_script",
+        source="calculate_specs.r",
+        target=[
+            ctx.path_to(ctx, "OUT_MODEL_SPECS", "Grossarl_bp.json"),
+            ctx.path_to(ctx, "OUT_MODEL_SPECS", "Grossarl_rid.json"),
+            ctx.path_to(ctx, "OUT_MODEL_SPECS", "GermanM1_bp.json"),
+            ctx.path_to(ctx, "OUT_MODEL_SPECS", "GermanM1_rid.json"),
+        ],
+        deps=[
+            ctx.path_to(ctx, "IN_DATA", "Grossarl.rda"),
+            ctx.path_to(ctx, "IN_DATA", "GermanM1.rda")
+        ],
+        name="calculate_specs",
+    )

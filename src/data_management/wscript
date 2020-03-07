@@ -10,3 +10,17 @@ def build(ctx):
         target=ctx.path_to(ctx, "OUT_DATA", "initial_locations.csv"),
         name="get_simulation_draws",
     )
+
+    ctx(
+        features="run_r_script",
+        source="transform_data.r",
+        target=[
+            ctx.path_to(ctx, "OUT_DATA", "Grossarl.csv"),
+            ctx.path_to(ctx, "OUT_DATA", "GermanM1.csv"),
+        ],
+        deps=[
+            ctx.path_to(ctx, "IN_DATA", "Grossarl.rda"),
+            ctx.path_to(ctx, "IN_DATA", "GermanM1.rda")
+        ],
+        name="transform_data",
+    )
