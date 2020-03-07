@@ -2,6 +2,18 @@ import numpy as np
 
 
 def recresid(x, y):
+    """Computes the recursive residuals of a linear regression model.
+
+    Args:
+        x (DesignMatrix or numpy.array): Regressor matrix X of the regression
+            model.
+        y (DesignMatrix or numpy.array): Vector of dependent variable of the
+            regression model.
+
+    Returns:
+        rval (list of float): Vector containing the recursive residuals.
+
+    """
     n = x.shape[0]
     q = x.shape[1]
     rval = np.zeros(n - q)
