@@ -7,7 +7,14 @@ from patsy import dmatrices
 from src.model_code.recresid import recresid
 
 
-def breakpoints(formula, h, breaks, data):
+def _bic(nobs, nreg, rss, df):
+    n = nobs
+    log_l = -0.5 * n * (math.log(rss) + 1 - math.log(n) + math.log(2 * math.pi))
+    bic = -2 * log_l + math.log(n) * df
+    return bic
+
+
+def breakpoints(formula, data, h=0.15, breaks=None):
     y, X = dmatrices(formula, data, return_type="matrix")
 
     n = X.shape[0]
@@ -50,54 +57,83 @@ def breakpoints(formula, h, breaks, data):
         rssi = np.concatenate((np.repeat(np.nan, k), np.cumsum(ssr ** 2)), axis=None)
         rss_triang.append(rssi)
 
-    break_rss = []
-    for i in range(h, n - h + 1):
-        rss = rss_triang[0][i - 1]
-        break_rss.append(rss)
+    rss_s = [rss_triang[0][n - 1]]
+    bic_s = [
+        n * (math.log(rss_s[0]) + 1 - math.log(n) + math.log(2 * math.pi))
+        + math.log(n) * (k + 1)
+    ]
+    opt_s = []
 
-    index_np = np.arange(h, n - h + 1)
-    rss_table_np = np.append([index_np], [np.array(break_rss).T], axis=0)
-    nan_array = np.full(rss_table_np.shape, np.nan)
+    for num_breaks in np.arange(1, breaks + 1):
 
-    if (breaks * 2) > rss_table_np.shape[0]:
-        for m in np.arange(rss_table_np.shape[0] / 2 + 1, breaks + 1):
-            my_index = np.arange(m * h, n - h + 1)
-            my_rss_table = np.append(
-                [rss_table_np[int((m - 1) * 2 - 2)]],
-                [rss_table_np[int((m - 1) * 2 - 1)]],
-                axis=0,
+        break_rss = []
+        for i in range(h, n - h + 1):
+            rss = rss_triang[0][i - 1]
+            break_rss.append(rss)
+
+        index_np = np.arange(h, n - h + 1)
+        rss_table_np = np.append([index_np], [np.array(break_rss).T], axis=0)
+        nan_array = np.full(rss_table_np.shape, np.nan)
+
+        if (num_breaks * 2) > rss_table_np.shape[0]:
+            for m in np.arange(rss_table_np.shape[0] / 2 + 1, num_breaks + 1):
+                my_index = np.arange(m * h, n - h + 1)
+                my_rss_table = np.append(
+                    [rss_table_np[int((m - 1) * 2 - 2)]],
+                    [rss_table_np[int((m - 1) * 2 - 1)]],
+                    axis=0,
+                )
+                my_rss_table = np.concatenate((my_rss_table, nan_array), axis=0)
+
+                for i in my_index:
+                    pot_index = np.arange((m - 1) * h, i - h + 1)
+                    break_rss = []
+                    for j in pot_index:
+                        j_index = np.where(rss_table_np[0].astype(int) == int(j))[0]
+                        rss = (
+                            my_rss_table[1][j_index]
+                            + rss_triang[int(j)][int(i - j - 1)]
+                        )
+                        break_rss.append(rss)
+                    opt = np.argmin(break_rss)
+                    i_index = np.where(rss_table_np[0].astype(int) == i)[0]
+                    my_rss_table[2][i_index] = pot_index[opt]
+                    my_rss_table[3][i_index] = break_rss[opt]
+
+                rss_table_np = np.concatenate((rss_table_np, my_rss_table[2:]))
+        if (num_breaks * 2) > rss_table_np.shape[0]:
+            raise ValueError("compute RSS.table with enough breaks before")
+
+        break_rss = []
+        for ind in index_np:
+            ind_index_np = np.where(rss_table_np[0].astype(int) == ind)[0]
+            rss = (
+                rss_table_np[num_breaks * 2 - 1][ind_index_np]
+                + rss_triang[int(ind)][n - int(ind) - 1]
             )
-            my_rss_table = np.concatenate((my_rss_table, nan_array), axis=0)
+            break_rss.append(rss[0])
+        opt = []
+        opt.append(index_np[np.nanargmin(break_rss)])
 
-            for i in my_index:
-                pot_index = np.arange((m - 1) * h, i - h + 1)
-                break_rss = []
-                for j in pot_index:
-                    j_index = np.where(rss_table_np[0].astype(int) == int(j))[0]
-                    rss = my_rss_table[1][j_index] + rss_triang[int(j)][int(i - j - 1)]
-                    break_rss.append(rss)
-                opt = np.argmin(break_rss)
-                i_index = np.where(rss_table_np[0].astype(int) == i)[0]
-                my_rss_table[2][i_index] = pot_index[opt]
-                my_rss_table[3][i_index] = break_rss[opt]
+        for j in np.flip(np.arange(2, num_breaks + 1)) * 2 - 2:
+            opt_index = np.where(rss_table_np[0].astype(int) == opt[0])[0]
+            opt.insert(0, int(rss_table_np[j][opt_index][0]))
 
-            rss_table_np = np.concatenate((rss_table_np, my_rss_table[2:]))
-    if (breaks * 2) > rss_table_np.shape[0]:
-        raise ValueError("compute RSS.table with enough breaks before")
+        bp = [0] + opt + [n]
+        rss_bp = 0
+        for brp in range(0, len(bp) - 1):
+            rss_bp += rss_triang[bp[brp]][bp[brp + 1] - bp[brp] - 1]
+        df = (k + 1) * (len(opt) + 1)
+        bic_bp = _bic(n, k, rss_bp, df)
 
-    break_rss = []
-    for ind in index_np:
-        ind_index_np = np.where(rss_table_np[0].astype(int) == ind)[0]
-        rss = (
-            rss_table_np[breaks * 2 - 1][ind_index_np]
-            + rss_triang[int(ind)][n - int(ind) - 1]
-        )
-        break_rss.append(rss[0])
-    opt = []
-    opt.append(index_np[np.nanargmin(break_rss)])
+        opt_s.append(opt)
+        rss_s.append(rss_bp)
+        bic_s.append(bic_bp)
 
-    for j in np.flip(np.arange(2, breaks + 1)) * 2 - 2:
-        opt_index = np.where(rss_table_np[0].astype(int) == opt[0])[0]
-        opt.insert(0, int(rss_table_np[j][opt_index][0]))
+        opt_break = np.argmin(bic_s)
+        if opt_break == 0:
+            opt_obs = np.nan
+        else:
+            opt_obs = opt_s[opt_break]
 
-    return opt
+    return (opt_break, opt_obs, opt_s, rss_s, bic_s, rss_triang, n, k, y, X)
