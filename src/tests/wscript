@@ -5,7 +5,18 @@ def build(ctx):
 
     ctx(
         features="run_py_script",
-        source="test_recresid.py",
-        deps=ctx.path_to(ctx, "IN_MODEL_CODE", "recresid.py"),
-        name="test_recresid",
+        source="run_tests.py",
+        deps=[
+            ctx.path_to(ctx, "IN_MODEL_CODE", "recresid.py"),
+            ctx.path_to(ctx, "IN_MODEL_CODE", "breakpoints.py"),
+            ctx.path_to(ctx, "IN_MODEL_CODE", "test_recresid.py"),
+            ctx.path_to(ctx, "IN_MODEL_CODE", "test_breakpoints.py"),
+            ctx.path_to(ctx, "OUT_DATA", "GermanM1.csv"),
+            ctx.path_to(ctx, "OUT_DATA", "Grossarl.csv"),
+            ctx.path_to(ctx, "OUT_MODEL_SPECS", "GermanM1_rid.json"),
+            ctx.path_to(ctx, "OUT_MODEL_SPECS", "Grossarl_rid.json"),
+            ctx.path_to(ctx, "OUT_MODEL_SPECS", "GermanM1_bp.json"),
+            ctx.path_to(ctx, "OUT_MODEL_SPECS", "Grossarl_bp.json"),
+        ],
+        name="run_tests",
     )

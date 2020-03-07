@@ -1,3 +1,7 @@
+'
+Create .csv files from the .rda databases.
+'
+
 source("project_paths.r")
 
 for(i in c("Grossarl", "GermanM1"))

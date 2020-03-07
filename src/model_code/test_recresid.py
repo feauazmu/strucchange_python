@@ -50,6 +50,3 @@ def test_recresid_more_regressors(setup_predict, expected_predict):
     np.testing.assert_almost_equal(
         calc_recresid, expected_predict[db], decimal=4, verbose=True
     )
-
-
-pytest.main()
