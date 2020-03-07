@@ -24,3 +24,11 @@ def build(ctx):
         ],
         name="transform_data",
     )
+
+    ctx(
+        features="run_py_script",
+        source="clean_data.py",
+        target=ctx.path_to(ctx, "OUT_DATA", "col_historic_homicide.csv"),
+        deps=ctx.path_to(ctx, "IN_DATA", "homicide_rate_by_country.csv"),
+        name="clean_data",
+    )
