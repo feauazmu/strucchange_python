@@ -1,0 +1,11 @@
+#! python
+
+
+def build(ctx):
+
+    ctx(
+        features="run_py_script",
+        source="test_recresid.py",
+        deps=ctx.path_to(ctx, "IN_MODEL_CODE", "recresid.py"),
+        name="test_recresid",
+    )
