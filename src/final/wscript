@@ -17,6 +17,21 @@ def build(ctx):
             name=f"plot_locations_{model}",
         )
 
+    ctx(
+        features="run_py_script",
+        source="plots.py",
+        deps=[
+            ctx.path_to(ctx, "OUT_ANALYSIS", "colombia_hom_breaks.pickle"),
+            ctx.path_to(ctx, "OUT_ANALYSIS", "timing_info.pickle"),
+        ],
+        target=[
+            ctx.path_to(ctx, "OUT_FIGURES", "colombia_hom.png"),
+            ctx.path_to(ctx, "OUT_FIGURES", "colombia_hom_bp.png"),
+            ctx.path_to(ctx, "OUT_FIGURES", "runtimes_plot.png"),
+        ],
+        name="plots",
+    )
+
     from src.final.project_dependency_graph import make_project_dependency_graph
 
     ctx.add_post_fun(make_project_dependency_graph)

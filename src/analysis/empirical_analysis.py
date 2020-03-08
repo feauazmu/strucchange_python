@@ -14,7 +14,7 @@ years = col_hom_rate["Year"].tolist()
 hom_rates = col_hom_rate["Homicide"].tolist()
 
 # find optimal breakpoints.
-breakpoints_col = breakpoints("Homicide ~ 1", col_hom_rate)
+breakpoints_col = breakpoints("Homicide ~ 1", col_hom_rate, h=0.1)
 
 opt_breaks = breakpoints_col[0]
 opt_obs = breakpoints_col[1]
@@ -34,7 +34,7 @@ breakpoint_info = {
     "Homicide Rate": hom_rates,
     "Optimal Number of Breaks": opt_breaks,
     "Observation of Breaks": opt_obs,
-    "Optimal Dates": opt_dates,
+    "Optimal Break Dates": opt_dates,
 }
 
 # store the information of the breakpoint analysis.

@@ -34,6 +34,7 @@ def breakpoints(formula, data, h=0.15, breaks=None):
             used. Default is None.
 
     Returns:
+        A tuple containing:
         opt_break (int): The optimal number of breaks.
         opt_obs (list of int or nan): The optimal breakpoints. If the optimal
             solution is one segment, returns NaN.
@@ -169,6 +170,6 @@ def breakpoints(formula, data, h=0.15, breaks=None):
     if opt_break == 0:
         opt_obs = np.nan
     else:
-        opt_obs = opt_s[opt_break]
+        opt_obs = opt_s[opt_break - 1]
 
     return (opt_break, opt_obs, opt_s, rss_s, bic_s, rss_triang)

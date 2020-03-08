@@ -35,3 +35,12 @@ def build(ctx):
 
         name="empirical_analysis",
     )
+
+    ctx(
+        features="run_py_script",
+        source="timing.py",
+        deps=ctx.path_to(ctx, "IN_MODEL_CODE", "breakpoints.py"),
+        target=ctx.path_to(ctx, "OUT_ANALYSIS", "timing_info.pickle"),
+
+        name="timing",
+    )
