@@ -25,12 +25,14 @@ ax.set(
 fig.savefig(ppj("OUT_FIGURES", "colombia_hom.png"), dpi=dpi)
 
 # plot the breakpoints
-breakpoint_info
 for xc in breakpoint_info["Optimal Break Dates"]:
     ax.axvline(x=xc, color="r", linestyle="--", lw=0.4)
 fig.savefig(ppj("OUT_FIGURES", "colombia_hom_bp.png"), dpi=dpi)
 
 breakpoint_info["Optimal Break Dates"]
+
+plt.clf()
+plt.cla()
 
 # plot timing
 
@@ -43,6 +45,6 @@ runtimes_plot = sns.regplot(x=timing_info[0], y=timing_info[1], fit_reg=True)
 runtimes_plot.set(
     title="Runtime of breakpoints function for number of observations.",
     xlabel="Number of observations",
-    ylabel="Time",
+    ylabel="Time (s)",
 )
 runtimes_plot.get_figure().savefig(ppj("OUT_FIGURES", "runtimes_plot.png"), dpi=dpi)
