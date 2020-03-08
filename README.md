@@ -13,3 +13,7 @@ Please not that, after the setup, running `waf.py build` will run a number of an
 ### Author
 
 * Felipe Augusto Azuero Mutis
+
+### License
+
+GNU 3.29
